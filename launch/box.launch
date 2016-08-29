@@ -1,4 +1,5 @@
 <launch>
 
-<node pkg="tf" type="static_transform_publisher" name="box_broadcaster" args="0 0 0 0 0 0 /map /world 10" />
+<node pkg="mrsd_ros_tutorials" type="display_box_marker" name="display_box_marker" ouput="screen"/>
+<node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" output="screen"/>
 </launch>

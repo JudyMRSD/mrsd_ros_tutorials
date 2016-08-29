@@ -11,33 +11,6 @@
 #include <tf/transform_broadcaster.h>
 #include <tf_conversions/tf_eigen.h>
 
-geometry_msgs::Transform g_tf;
-
-void reconfig_callback(mrsd_ros_tutorials::TransformsConfig &config) {
-  std::cout << "Got a callback from reconfigure\n";
-  // Set Translation
-  g_tf.translation.x = config.x;
-  g_tf.translation.y = config.y;
-  g_tf.translation.z = config.z;
-
-  // Set Rotation
-  Eigen::AngleAxisd roll = Eigen::AngleAxisd(config.roll, Eigen::Vector3d::UnitX());
-  Eigen::AngleAxisd pitch = Eigen::AngleAxisd(config.pitch, Eigen::Vector3d::UnitY());
-  Eigen::AngleAxisd yaw = Eigen::AngleAxisd(config.yaw, Eigen::Vector3d::UnitZ());
-
-  Eigen::Quaterniond QEigen;
-  QEigen = roll * pitch * yaw;
-
-  //tf::Quaternion Qtf;
-  //tf::quaternionEigenToTF(QEigen, Qtf);
-  
-  g_tf.rotation.x = QEigen.x();
-  g_tf.rotation.y = QEigen.y();
-  g_tf.rotation.z = QEigen.z();
-  g_tf.rotation.w = QEigen.w();
-
-}
-
 
 class BoxDisplayer
 {
@@ -77,17 +50,37 @@ public:
     marker_.pose = box_pose_;
     std::cout << "Class initialized\n";
     box_tf_.transform.rotation.w = 1;
-    box_tf_.header.stamp = ros::Time::now();
-    box_tf_.header.frame_id = "world";
-    box_tf_.child_frame_id = "box";
-    tf_broadcaster_.sendTransform(box_tf_);
+
+  }
+
+  void reconfig_callback(mrsd_ros_tutorials::TransformsConfig &config, uint32_t level) {
+  ROS_INFO("Got a callback from reconfigure");
+  // Set Translation
+  box_tf_.transform.translation.x = config.x;
+  box_tf_.transform.translation.y = config.y;
+  box_tf_.transform.translation.z = config.z;
+
+  // Set Rotation
+  Eigen::AngleAxisd roll = Eigen::AngleAxisd(config.roll, Eigen::Vector3d::UnitX());
+  Eigen::AngleAxisd pitch = Eigen::AngleAxisd(config.pitch, Eigen::Vector3d::UnitY());
+  Eigen::AngleAxisd yaw = Eigen::AngleAxisd(config.yaw, Eigen::Vector3d::UnitZ());
+
+  Eigen::Quaterniond QEigen;
+  QEigen = roll * pitch * yaw;
+
+  //tf::Quaternion Qtf;
+  //tf::quaternionEigenToTF(QEigen, Qtf);
+  
+  box_tf_.transform.rotation.x = QEigen.x();
+  box_tf_.transform.rotation.y = QEigen.y();
+  box_tf_.transform.rotation.z = QEigen.z();
+  box_tf_.transform.rotation.w = QEigen.w();
 
   }
 
 
-  void updateBox(const geometry_msgs::Transform input_tf)
+  void updateBox()
   {
-    box_tf_.transform = input_tf;
     //std::cout << "updating Box\n";
     marker_.header.stamp = ros::Time::now();
     marker_pub_.publish(marker_);
@@ -107,16 +100,17 @@ int main( int argc, char** argv )
 {
   ros::init(argc, argv, "display_box_marker");
   ros::Time::init();
-  g_tf.rotation.w = 1;
-  ros::Rate rate(10);
+  ros::Rate rate(10); // hz
   ros::NodeHandle nh;
+  //BoxDisplayer *BDptr = new BoxDisplayer();
   BoxDisplayer BD;
 
 
   dynamic_reconfigure::Server<mrsd_ros_tutorials::TransformsConfig> server;
   dynamic_reconfigure::Server<mrsd_ros_tutorials::TransformsConfig>::CallbackType cbType;
 
-  cbType = boost::bind(&reconfig_callback, _1);
+  //cbType = boost::bind(&BoxDisplayer::reconfig_callback, BDptr, _1);
+  cbType = boost::bind(&BoxDisplayer::reconfig_callback, &BD, _1, _2);
   server.setCallback(cbType);
 
   std::cout << "Initialized display_box_marker node\n";
@@ -124,7 +118,9 @@ int main( int argc, char** argv )
 
   while (ros::ok() )
   {
-    BD.updateBox(g_tf);
+    //BDptr->updateBox();
+    BD.updateBox();
+    ros::spinOnce();
     rate.sleep();
   }
   return 0;
