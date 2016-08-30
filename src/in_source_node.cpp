@@ -10,10 +10,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-namespace enc = sensor_msgs::image_encodings;
-
-static const char WINDOW[] = "Image window";
-
 class ImageConverter
 {
   ros::NodeHandle nh_;
@@ -40,7 +36,7 @@ public:
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
-      cv_ptr = cv_bridge::toCvCopy(msg, enc::BGR8);
+      cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
     }
     catch (cv_bridge::Exception& e)
     {

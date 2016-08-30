@@ -5,7 +5,7 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <mrsd_ros_tutorials/image_converter.h>
+#include <mrsd_ros_tutorials/image_painter.h>
 
 
 void mrsd::ImagePainter::do_really_cool_stuff(cv_bridge::CvImagePtr cv_ptr)

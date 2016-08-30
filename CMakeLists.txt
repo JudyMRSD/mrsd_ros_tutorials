@@ -43,7 +43,7 @@ target_link_libraries(linear_node ${catkin_LIBRARIES})
 
 add_executable(abstracted_class_node 
 	src/abstracted_class_node.cpp
-	src/image_converter.cpp)
+	src/image_painter.cpp)
 target_link_libraries(abstracted_class_node ${catkin_LIBRARIES})
 
 add_executable(display_box_marker src/display_box_marker.cpp)

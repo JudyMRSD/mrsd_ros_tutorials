@@ -9,55 +9,57 @@
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <mrsd_ros_tutorials/image_converter.h>
+#include <mrsd_ros_tutorials/image_painter.h>
 
-volatile bool g_new_image = false;
-cv_bridge::CvImagePtr g_cv_ptr;
-
-void imageCb(const sensor_msgs::ImageConstPtr& msg)
+class ImageWrapper
 {
-  try
+  ros::NodeHandle nh_;
+  image_transport::ImageTransport it_;
+  image_transport::Subscriber image_sub_;
+  image_transport::Publisher image_pub_;
+  mrsd::ImagePainter painter_;
+  
+public:
+  ImageWrapper()
+    : it_(nh_)
   {
-    g_cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-  }
-  catch (cv_bridge::Exception& e)
-  {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
+    image_pub_ = it_.advertise("out", 1);
+    image_sub_ = it_.subscribe("usb_cam/image_raw", 1, &ImageWrapper::imageCb, this);
+
   }
 
-  g_new_image = true;
-  
-}
+  ~ImageWrapper()
+  {
+    ;
+  }
+
+  void imageCb(const sensor_msgs::ImageConstPtr& msg)
+  {
+    cv_bridge::CvImagePtr cv_ptr;
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+      return;
+    }
+
+    painter_.do_really_cool_stuff(cv_ptr);
+    
+    image_pub_.publish(cv_ptr->toImageMsg());
+  }
+
+}; // Class Definition
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "image_converter");
+  
+  ImageWrapper wrapperInstance;
 
-  ros::NodeHandle nh_;
-  image_transport::ImageTransport it_(nh_);
-  image_transport::Subscriber image_sub_;
-  image_transport::Publisher image_pub_;
+  ros::spin();
 
-  image_pub_ = it_.advertise("out", 1);
-  image_sub_ = it_.subscribe("usb_cam/image_raw", 1, &imageCb);
-
-  mrsd::ImageConverter imageConverterInstance;
-
-  while(ros::ok() )
-  {
-    if(g_new_image)
-    {
-
-      imageConverterInstance.do_really_cool_stuff(g_cv_ptr);
-
-      g_new_image = false;
-
-      image_pub_.publish(g_cv_ptr->toImageMsg());
-
-    }
-    ros::Duration(.01).sleep();
-    ros::spinOnce();
-  }
   return 0;
 }
