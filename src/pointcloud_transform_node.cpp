@@ -25,7 +25,7 @@ public:
   {
     ROS_INFO("Initialized CloudPublisher Class");
     cloud_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>("/out_cloud", 1);
-    cloud_subscriber_ = nh_.subscribe("/camera/depth_registered/points", 1, &CloudPublisher::cloudCallback, this);
+    cloud_subscriber_ = nh_.subscribe("/camera/depth_registered/points_throttle", 1, &CloudPublisher::cloudCallback, this);
   }
 
   void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg)
