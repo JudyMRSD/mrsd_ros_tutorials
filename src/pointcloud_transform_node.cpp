@@ -8,7 +8,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
 
-
+/** @brief Handles Pub/Sub for pointcloud as an illustrative example
+*/
 class CloudPublisher
 {
 public:
@@ -40,7 +41,8 @@ public:
     publishCloud(out_cloud_, frame_name);
 
   }
-
+  /** @brief Simple method to show how to iterate over contents of a pointcloud
+  */
   void removeColor(pcl::PointCloud<pcl::PointXYZRGB>::Ptr src)
   {
     for(auto it = (*src).begin(); it != src->end(); it++)
@@ -51,6 +53,8 @@ public:
     }
   }
 
+  /* @brief Simple method to show how to transform pointcloud using PCL
+  */
   void transformCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr src,
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr dst)
   {
@@ -64,6 +68,8 @@ public:
     pcl::transformPointCloud (*src, *dst, M);
   }
 
+  /* @brief Simple illustrative Publish example
+  */
   void publishCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr src, std::string frame_name)
   {         
     sensor_msgs::PointCloud2 cloud_msg;

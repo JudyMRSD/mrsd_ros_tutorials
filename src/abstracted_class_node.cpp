@@ -11,6 +11,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <mrsd_ros_tutorials/image_painter.h>
 
+/** @brief ROS image wrapper for ImagePainter
+ *
+ * The ROW wrapper feeds data to the ImagePainter class 
+ * and does something with the result.  This helps keep the ImagePainter
+ * class clear of Ros Pub/Sub code that would make testing of ImagePainter 
+ * more difficult
+ */
+
 class ImageWrapper
 {
   ros::NodeHandle nh_;

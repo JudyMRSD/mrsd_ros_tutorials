@@ -10,6 +10,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+/** @brief Handles image pub/sub and painting circles (demo of a in-source class)
+*/
 class ImageConverter
 {
   ros::NodeHandle nh_;
@@ -30,7 +32,8 @@ public:
   {
     ;
   }
-
+  /* @brief Subscriber callback for an image
+  */
   void imageCb(const sensor_msgs::ImageConstPtr& msg)
   {
     cv_bridge::CvImagePtr cv_ptr;
@@ -49,6 +52,12 @@ public:
     image_pub_.publish(cv_ptr->toImageMsg());
   }
 
+
+  /** @brief paints colored circles onto input image
+   *  The function draws circles along the diagional from upper left
+   *  to lower right.  The color is hardcoded.
+   *  @param cv_ptr Image to paint circles over
+   */        
   void do_really_cool_stuff(cv_bridge::CvImagePtr cv_ptr)
   {
     // Do really cool stuff here *******************************************
